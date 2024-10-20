@@ -45,16 +45,38 @@ class UserManager(BaseUserManager):
         
         return self.create_user(email=email, password=password, **extra_fields)
 
+
+
+
+
+
+
+class UserPosition(models.Model):
+    position_en = models.CharField(max_length=50, null=True)
+    position_ar = models.CharField(max_length=50, null=True)
+    created = models.DateTimeField(auto_now=True)
+
+
+
+    objects = UserManager()
+
+    def __str__(self):
+        return self.position_en
+
+
+
 class Profile(AbstractBaseUser,PermissionsMixin):
     email = models.EmailField(verbose_name='email', unique=True)
-    first_name = models.CharField(max_length=50, null=True)
-    last_name = models.CharField(max_length=50, null=True)
+    profile_name = models.CharField(max_length=50, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    city = models.CharField(max_length=60, null=True,blank = True)
+    image = models.ImageField(
+        upload_to="Profile", blank=True,null = True )
     phone_number =  models.CharField(max_length=20, null=True)
-    last_modified = models.DateTimeField(auto_now=True)
+    gender = models.CharField(max_length=50, null=True)
+    created = models.DateTimeField(auto_now=True)
+    Position = models.ForeignKey(UserPosition, on_delete=models.CASCADE,blank=True,null = True,)
 
     USERNAME_FIELD = 'email'
     objects = UserManager()
@@ -66,7 +88,27 @@ class Profile(AbstractBaseUser,PermissionsMixin):
     
 
 
+class Volunteer(models.Model):
+    email = models.EmailField(verbose_name='email', unique=True)
+    name = models.CharField(max_length=50, null=True)
+    image = models.ImageField(
+        upload_to="Volunteers", blank=True,null = True )
+    phone_number =  models.CharField(max_length=40, null=True)
+    whatsapp =  models.CharField(max_length=40, null=True)
+    created = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return self.email
 
 
 
 
+class UserLoginLocation(models.Model):
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE,blank=True,null = True,)
+    ip_address =  models.CharField(max_length=40, null=True)
+    login_time = models.DateTimeField(auto_now=True)
+
+
+    def __str__(self):
+        return str(self.user.email)
